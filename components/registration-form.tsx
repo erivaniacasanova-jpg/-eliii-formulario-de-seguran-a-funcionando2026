@@ -1171,12 +1171,9 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
         </Card>
 
         {/* Botões */}
-        <div className="flex gap-4 justify-end">
-          <Button type="button" variant="outline" onClick={() => window.history.back()}>
-            Voltar
-          </Button>
+        <div className="flex gap-4 justify-center">
           <Button type="submit" disabled={loading} className="bg-green-600 hover:bg-green-700 text-white">
-            {loading ? "Processando..." : "Salvar"}
+            {loading ? "Processando..." : "Finalizar cadastro"}
           </Button>
         </div>
       </form>
