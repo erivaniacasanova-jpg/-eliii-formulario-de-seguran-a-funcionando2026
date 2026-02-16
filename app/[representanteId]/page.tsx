@@ -14,11 +14,6 @@ export default async function RepresentantePage({ params }: { params: Promise<{ 
       nome: "Antonia Erivania Delmiro Jacinto",
       whatsapp: "558498410187",
     },
-    "159726": {
-      id: "159726",
-      nome: " Jordeides Silva Pereira",
-      whatsapp: "556993397859",
-    },
     "153542": {
       id: "153542",
       nome: "Aline Aparecida Melo",
