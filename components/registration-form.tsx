@@ -107,8 +107,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
     typeFrete: "",
   })
 
-  // Estados para controle visual de preenchimento sequencial
-  const [activeField, setActiveField] = useState<string>("typeChip")
   const [birthValid, setBirthValid] = useState<boolean | null>(null)
   const [whatsappValid, setWhatsappValid] = useState<boolean | null>(null)
   const [whatsappValidating, setWhatsappValidating] = useState(false)
@@ -171,11 +169,9 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
       formattedValue = formatPhone(value)
     } else if (field === "birth") {
       formattedValue = formatDateInput(value)
-      // Validar formato visual da data
       const numbers = value.replace(/\D/g, "")
       if (numbers.length === 8) {
         setBirthValid(true)
-        checkFieldCompletion(field, formattedValue)
       } else {
         setBirthValid(numbers.length > 0 ? false : null)
       }
@@ -184,11 +180,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
     }
 
     setFormData((prev) => ({ ...prev, [field]: formattedValue }))
-
-    // Verificar se o campo foi preenchido corretamente e liberar o próximo
-    if (field !== "birth") {
-      checkFieldCompletion(field, formattedValue)
-    }
   }
 
   // Validar WhatsApp via wa.me
@@ -221,7 +212,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
 
       if (data.existe === true) {
         setWhatsappValid(true)
-        checkFieldCompletion("cell", phone)
       } else {
         setWhatsappValid(false)
         toast({
@@ -241,120 +231,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
     } finally {
       setWhatsappValidating(false)
     }
-  }
-
-  // Verificar se campo está completo e liberar próximo
-  const checkFieldCompletion = (field: string, value: string) => {
-    const fieldOrder = [
-      "typeChip",
-      "plan_id",
-      "cpf",
-      "birth",
-      "name",
-      "email",
-      "cell",
-      "cep",
-      "district",
-      "city",
-      "state",
-      "street",
-      "number",
-      "complement",
-      "typeFrete"
-    ]
-
-    const currentIndex = fieldOrder.indexOf(field)
-    if (currentIndex === -1) return
-
-    let isValid = false
-
-    switch (field) {
-      case "typeChip":
-        isValid = value === "fisico" || value === "eSim"
-        break
-      case "plan_id":
-        isValid = value !== ""
-        break
-      case "cpf":
-        isValid = value.replace(/\D/g, "").length === 11
-        break
-      case "birth":
-        isValid = value.replace(/\D/g, "").length === 8
-        break
-      case "name":
-        isValid = value.trim().length > 3
-        break
-      case "email":
-        isValid = value.includes("@") && value.includes(".")
-        break
-      case "cell":
-        const numbers = value.replace(/\D/g, "")
-        isValid = numbers.length >= 10 && numbers.length <= 11
-        break
-      case "cep":
-        isValid = value.replace(/\D/g, "").length === 8
-        // Quando o CEP for válido, liberar TODOS os campos de endereço de uma vez
-        if (isValid) {
-          setActiveField("complement")
-          return
-        }
-        break
-      case "district":
-      case "city":
-      case "street":
-        isValid = value.trim().length > 0
-        break
-      case "state":
-        isValid = value !== ""
-        break
-      case "number":
-      case "complement":
-        isValid = true // Campos opcionais
-        break
-      case "typeFrete":
-        isValid = value !== ""
-        break
-    }
-
-    if (isValid && currentIndex < fieldOrder.length - 1) {
-      setActiveField(fieldOrder[currentIndex + 1])
-    }
-
-    // Verificar se todos os campos de endereço obrigatórios estão preenchidos para liberar typeFrete
-    if (["district", "city", "state", "street"].includes(field)) {
-      if (formData.district.trim().length > 0 &&
-          formData.city.trim().length > 0 &&
-          formData.state !== "" &&
-          formData.street.trim().length > 0) {
-        setActiveField("typeFrete")
-      }
-    }
-  }
-
-  // Verificar se um campo pode ser interagido
-  const isFieldUnlocked = (fieldName: string): boolean => {
-    const fieldOrder = [
-      "typeChip",
-      "plan_id",
-      "cpf",
-      "birth",
-      "name",
-      "email",
-      "cell",
-      "cep",
-      "district",
-      "city",
-      "state",
-      "street",
-      "number",
-      "complement",
-      "typeFrete"
-    ]
-
-    const currentIndex = fieldOrder.indexOf(activeField)
-    const targetIndex = fieldOrder.indexOf(fieldName)
-
-    return targetIndex <= currentIndex
   }
 
   const fetchAddressByCEP = async (cep: string) => {
@@ -436,16 +312,11 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
         }))
         setCpfValidated(true)
 
-        if (autoFilledName.trim().length > 3) {
-          setActiveField("email")
-        }
-
         toast({
           title: "CPF validado!",
           description: "Dados preenchidos automaticamente.",
         })
       } else {
-        setActiveField("name")
         toast({
           title: "CPF não encontrado",
           description: "Verifique o CPF e data de nascimento.",
@@ -454,7 +325,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
       }
     } catch (error) {
       console.error("Erro ao validar CPF:", error)
-      setActiveField("name")
     }
   }
 
@@ -726,23 +596,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
     video.load()
   }, [])
 
-  // Monitorar campos de endereço e liberar typeFrete quando todos estiverem preenchidos
-  useEffect(() => {
-    if (activeField === "complement" ||
-        (formData.district.trim().length > 0 &&
-         formData.city.trim().length > 0 &&
-         formData.state !== "" &&
-         formData.street.trim().length > 0)) {
-      if (formData.district.trim().length > 0 &&
-          formData.city.trim().length > 0 &&
-          formData.state !== "" &&
-          formData.street.trim().length > 0 &&
-          activeField !== "typeFrete") {
-        setActiveField("typeFrete")
-      }
-    }
-  }, [formData.district, formData.city, formData.state, formData.street, activeField])
-
   if (showSuccessModal) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -819,16 +672,15 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                     handleInputChange("plan_id", "")
                   }}
                   className="flex gap-4"
-                  disabled={!isFieldUnlocked("typeChip")}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="fisico" id="fisico" disabled={!isFieldUnlocked("typeChip")} />
+                    <RadioGroupItem value="fisico" id="fisico" />
                     <Label htmlFor="fisico" className="font-normal cursor-pointer">
                       Físico
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="eSim" id="eSim-chip" disabled={!isFieldUnlocked("typeChip")} />
+                    <RadioGroupItem value="eSim" id="eSim-chip" />
                     <Label htmlFor="eSim-chip" className="font-normal cursor-pointer">
                       e-SIM
                     </Label>
@@ -836,7 +688,7 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                 </RadioGroup>
               </div>
 
-              <div className={`space-y-2 ${!isFieldUnlocked("plan_id") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="plan">
                   Plano <span className="text-red-500">*</span>
                 </Label>
@@ -844,7 +696,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   value={formData.plan_id}
                   onValueChange={(value) => handleInputChange("plan_id", value)}
                   required
-                  disabled={!isFieldUnlocked("plan_id")}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um plano" />
@@ -883,7 +734,7 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
           <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
             <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Dados Pessoais</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-4">
-              <div className={`space-y-2 ${!isFieldUnlocked("cpf") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="cpf">
                   CPF <span className="text-red-500">*</span>
                 </Label>
@@ -894,12 +745,11 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   placeholder="000.000.000-00"
                   maxLength={14}
                   required
-                  disabled={!isFieldUnlocked("cpf")}
                   className={cpfValidated ? "border-green-500" : ""}
                 />
               </div>
 
-              <div className={`space-y-2 ${!isFieldUnlocked("birth") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="birth">
                   Data de Nascimento <span className="text-red-500">*</span>
                 </Label>
@@ -912,7 +762,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   placeholder="DD/MM/AAAA"
                   maxLength={10}
                   required
-                  disabled={!isFieldUnlocked("birth")}
                   className={birthValid === false ? "border-red-500 border-2" : birthValid === true ? "border-green-500" : ""}
                 />
                 {birthValid === false && (
@@ -920,7 +769,7 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                 )}
               </div>
 
-              <div className={`space-y-2 md:col-span-2 lg:col-span-1 ${!isFieldUnlocked("name") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2 md:col-span-2 lg:col-span-1">
                 <Label htmlFor="name">
                   Nome Completo <span className="text-red-500">*</span>
                 </Label>
@@ -931,7 +780,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   placeholder="Seu nome completo"
                   required
                   readOnly={cpfValidated}
-                  disabled={!isFieldUnlocked("name")}
                   className={cpfValidated ? "border-green-500" : ""}
                 />
               </div>
@@ -944,7 +792,7 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
           <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
             <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Contato</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-4">
-              <div className={`space-y-2 md:col-span-2 ${!isFieldUnlocked("email") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="email">
                   Email <span className="text-red-500">*</span>
                 </Label>
@@ -956,12 +804,11 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   onBlur={(e) => validateEmail(e.target.value)}
                   placeholder="seu@email.com"
                   required
-                  disabled={!isFieldUnlocked("email")}
                   className={emailValidated ? "border-green-500" : ""}
                 />
               </div>
 
-              <div className={`space-y-2 ${!isFieldUnlocked("cell") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="cell">
                   WhatsApp <span className="text-red-500">*</span>
                 </Label>
@@ -980,7 +827,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   placeholder="(00) 00000-0000"
                   maxLength={15}
                   required
-                  disabled={!isFieldUnlocked("cell")}
                   className={
                     whatsappValid === false
                       ? "border-red-500 border-2"
@@ -1008,7 +854,7 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
           <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
             <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Endereço</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-4">
-              <div className={`space-y-2 ${!isFieldUnlocked("cep") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="cep">
                   CEP <span className="text-red-500">*</span>
                 </Label>
@@ -1023,7 +869,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   placeholder="00000-000"
                   maxLength={9}
                   required
-                  disabled={!isFieldUnlocked("cep")}
                   className={cepValid === false ? "border-red-500 border-2" : cepValid === true ? "border-green-500" : ""}
                 />
                 {cepValid === false && (
@@ -1031,7 +876,7 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                 )}
               </div>
 
-              <div className={`space-y-2 ${!isFieldUnlocked("district") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="district">
                   Bairro <span className="text-red-500">*</span>
                 </Label>
@@ -1041,11 +886,10 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   onChange={(e) => handleInputChange("district", e.target.value)}
                   placeholder="Seu bairro"
                   required
-                  disabled={!isFieldUnlocked("district")}
                 />
               </div>
 
-              <div className={`space-y-2 ${!isFieldUnlocked("city") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="city">
                   Cidade <span className="text-red-500">*</span>
                 </Label>
@@ -1055,11 +899,10 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   onChange={(e) => handleInputChange("city", e.target.value)}
                   placeholder="Sua cidade"
                   required
-                  disabled={!isFieldUnlocked("city")}
                 />
               </div>
 
-              <div className={`space-y-2 ${!isFieldUnlocked("state") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="state">
                   Estado <span className="text-red-500">*</span>
                 </Label>
@@ -1067,7 +910,6 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   value={formData.state}
                   onValueChange={(value) => handleInputChange("state", value)}
                   required
-                  disabled={!isFieldUnlocked("state")}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione" />
@@ -1082,7 +924,7 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                 </Select>
               </div>
 
-              <div className={`space-y-2 md:col-span-2 lg:col-span-3 ${!isFieldUnlocked("street") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2 md:col-span-2 lg:col-span-3">
                 <Label htmlFor="street">
                   Endereço <span className="text-red-500">*</span>
                 </Label>
@@ -1092,29 +934,26 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                   onChange={(e) => handleInputChange("street", e.target.value)}
                   placeholder="Rua, Avenida, etc"
                   required
-                  disabled={!isFieldUnlocked("street")}
                 />
               </div>
 
-              <div className={`space-y-2 ${!isFieldUnlocked("number") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2">
                 <Label htmlFor="number">Número</Label>
                 <Input
                   id="number"
                   value={formData.number}
                   onChange={(e) => handleInputChange("number", e.target.value)}
                   placeholder="123"
-                  disabled={!isFieldUnlocked("number")}
                 />
               </div>
 
-              <div className={`space-y-2 md:col-span-2 ${!isFieldUnlocked("complement") ? "opacity-50 pointer-events-none" : ""}`}>
+              <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="complement">Complemento</Label>
                 <Input
                   id="complement"
                   value={formData.complement}
                   onChange={(e) => handleInputChange("complement", e.target.value)}
                   placeholder="Apto, Bloco, etc"
-                  disabled={!isFieldUnlocked("complement")}
                 />
               </div>
             </div>
@@ -1125,49 +964,46 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
         <Card>
           <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
             <h2 className="text-lg md:text-xl font-semibold mb-4 md:mb-6">Forma de Envio</h2>
-            <div className={!isFieldUnlocked("typeFrete") ? "opacity-50 pointer-events-none" : ""}>
-              <RadioGroup
-                value={formData.typeFrete}
-                onValueChange={(value) => handleInputChange("typeFrete", value)}
-                className="space-y-3"
-                disabled={!isFieldUnlocked("typeFrete")}
-              >
-                {formData.typeChip === "fisico" && (
-                  <>
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Carta" id="carta" disabled={!isFieldUnlocked("typeFrete")} />
-                        <Label htmlFor="carta" className="font-normal cursor-pointer">
-                          Enviar via Carta Registrada
-                        </Label>
-                      </div>
-                      <p className="text-sm text-muted-foreground ml-6">
-                        Para quem vai receber o chip pelos Correios
-                      </p>
+            <RadioGroup
+              value={formData.typeFrete}
+              onValueChange={(value) => handleInputChange("typeFrete", value)}
+              className="space-y-3"
+            >
+              {formData.typeChip === "fisico" && (
+                <>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="Carta" id="carta" />
+                      <Label htmlFor="carta" className="font-normal cursor-pointer">
+                        Enviar via Carta Registrada
+                      </Label>
                     </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="semFrete" id="semFrete" disabled={!isFieldUnlocked("typeFrete")} />
-                        <Label htmlFor="semFrete" className="font-normal cursor-pointer">
-                          Retirar na Associação ou com um Associado
-                        </Label>
-                      </div>
-                      <p className="text-sm text-muted-foreground ml-6">
-                        Se você vai retirar o chip pessoalmente com um representante ou no caso dos planos da Vivo, vai comprar um chip para ativar de forma imediata
-                      </p>
-                    </div>
-                  </>
-                )}
-                {formData.typeChip === "eSim" && (
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="eSim" id="eSim" disabled={!isFieldUnlocked("typeFrete")} />
-                    <Label htmlFor="eSim" className="font-normal cursor-pointer">
-                      Sem a necessidade de envio (e-SIM)
-                    </Label>
+                    <p className="text-sm text-muted-foreground ml-6">
+                      Para quem vai receber o chip pelos Correios
+                    </p>
                   </div>
-                )}
-              </RadioGroup>
-            </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="semFrete" id="semFrete" />
+                      <Label htmlFor="semFrete" className="font-normal cursor-pointer">
+                        Retirar na Associação ou com um Associado
+                      </Label>
+                    </div>
+                    <p className="text-sm text-muted-foreground ml-6">
+                      Se você vai retirar o chip pessoalmente com um representante ou no caso dos planos da Vivo, vai comprar um chip para ativar de forma imediata
+                    </p>
+                  </div>
+                </>
+              )}
+              {formData.typeChip === "eSim" && (
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="eSim" id="eSim" />
+                  <Label htmlFor="eSim" className="font-normal cursor-pointer">
+                    Sem a necessidade de envio (e-SIM)
+                  </Label>
+                </div>
+              )}
+            </RadioGroup>
           </CardContent>
         </Card>
 
