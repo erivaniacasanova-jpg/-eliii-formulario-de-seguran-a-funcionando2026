@@ -435,6 +435,13 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
   return (
     <>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4 md:gap-6">
+        {step === 0 && (
+          <div className="text-center mb-2">
+            <p className="text-sm sm:text-base text-gray-700">
+              {"Preencha o formulario abaixo corretamente para ativarmos o seu plano na Federal Associados. Cadastro rapido, sem consulta ao SPC/SERASA e sem fidelidade."}
+            </p>
+          </div>
+        )}
         <StepIndicator />
         <h2 className="text-lg md:text-xl font-semibold text-center text-gray-800">{STEP_TITLES[step]}</h2>
 
