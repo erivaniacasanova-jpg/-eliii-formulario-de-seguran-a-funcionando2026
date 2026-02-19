@@ -1,13 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "@/components/ui/toaster"
-import { Suspense } from "react"
 import "./globals.css"
-
-const geistSans = Geist({ subsets: ["latin"] })
-const geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Federal Associados - Cadastro",
@@ -21,12 +15,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="font-sans">
-        <Suspense fallback={null}>
-          {children}
-          <Toaster />
-        </Suspense>
-        <Analytics />
+      <body className="font-sans antialiased">
+        {children}
+        <Toaster />
       </body>
     </html>
   )
