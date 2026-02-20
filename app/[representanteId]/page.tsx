@@ -71,12 +71,9 @@ export default async function RepresentantePage({ params }: { params: Promise<{ 
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-6 md:py-12 px-2 md:px-4">
-      <div className="container mx-auto max-w-4xl w-full px-3 sm:px-6 md:px-8">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center py-6 md:py-12 px-2 md:px-4">
+      <div className="mx-auto max-w-4xl w-full px-3 sm:px-6 md:px-8">
         <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 md:p-8">
-          <div className="text-center mb-6 md:mb-8">
-            <p className="text-sm sm:text-base text-gray-700">Preencha o formulário abaixo corretamente para ativarmos o seu plano na Federal Associados. Cadastro rápido, sem consulta ao SPC/SERASA e sem fidelidade.</p>
-          </div>
           <RegistrationForm representante={representante} />
         </div>
         <footer className="text-center mt-6 md:mt-8 text-xs sm:text-sm text-gray-600 px-2">
