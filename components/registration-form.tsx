@@ -520,16 +520,16 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cpf">{"CPF"} <span className="text-red-500">*</span></Label>
-                  <Input id="cpf" value={formData.cpf} onChange={(e) => handleInputChange("cpf", e.target.value)} placeholder="000.000.000-00" maxLength={14} required className={cpfValidated ? "border-green-500" : ""} />
+                  <Input id="cpf" value={formData.cpf} onChange={(e) => handleInputChange("cpf", e.target.value)} maxLength={14} required className={cpfValidated ? "border-green-500" : ""} />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="birth">{"Data de Nascimento"} <span className="text-red-500">*</span></Label>
-                  <Input id="birth" type="text" value={formData.birth} onChange={(e) => handleInputChange("birth", e.target.value)} onBlur={(e) => validateCPFWithAPI(formData.cpf, e.target.value)} placeholder="DD/MM/AAAA" maxLength={10} required className={birthValid === false ? "border-red-500 border-2" : birthValid === true ? "border-green-500" : ""} />
+                  <Input id="birth" type="text" value={formData.birth} onChange={(e) => handleInputChange("birth", e.target.value)} onBlur={(e) => validateCPFWithAPI(formData.cpf, e.target.value)} maxLength={10} required className={birthValid === false ? "border-red-500 border-2" : birthValid === true ? "border-green-500" : ""} />
                   {birthValid === false && <p className="text-sm text-red-500 font-medium">{"Data incompleta! Digite no formato DD/MM/AAAA (8 dígitos)."}</p>}
                 </div>
                 <div className="flex flex-col gap-2 md:col-span-2">
                   <Label htmlFor="name">{"Nome Completo"} <span className="text-red-500">*</span></Label>
-                  <Input id="name" value={formData.name} onChange={(e) => handleInputChange("name", e.target.value)} placeholder="Seu nome completo" required readOnly={cpfValidated} className={cpfValidated ? "border-green-500" : ""} />
+                  <Input id="name" value={formData.name} onChange={(e) => handleInputChange("name", e.target.value)} required readOnly={cpfValidated} className={cpfValidated ? "border-green-500" : ""} />
                 </div>
               </div>
             </CardContent>
@@ -543,11 +543,11 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="email">{"Email"} <span className="text-red-500">*</span></Label>
-                  <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} onBlur={(e) => validateEmail(e.target.value)} placeholder="seu@email.com" required className={emailValidated ? "border-green-500" : ""} />
+                  <Input id="email" type="email" value={formData.email} onChange={(e) => handleInputChange("email", e.target.value)} onBlur={(e) => validateEmail(e.target.value)} required className={emailValidated ? "border-green-500" : ""} />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cell">{"WhatsApp"} <span className="text-red-500">*</span></Label>
-                  <Input id="cell" value={formData.cell} onChange={(e) => handleInputChange("cell", e.target.value)} onBlur={(e) => { const numbers = e.target.value.replace(/\D/g, ""); if (numbers.length >= 10 && numbers.length <= 11) validateWhatsApp(e.target.value); else if (numbers.length > 0) setWhatsappValid(false) }} placeholder="(00) 00000-0000" maxLength={15} required className={whatsappValid === false ? "border-red-500 border-2" : whatsappValid === true ? "border-green-500" : ""} />
+                  <Input id="cell" value={formData.cell} onChange={(e) => handleInputChange("cell", e.target.value)} onBlur={(e) => { const numbers = e.target.value.replace(/\D/g, ""); if (numbers.length >= 10 && numbers.length <= 11) validateWhatsApp(e.target.value); else if (numbers.length > 0) setWhatsappValid(false) }} maxLength={15} required className={whatsappValid === false ? "border-red-500 border-2" : whatsappValid === true ? "border-green-500" : ""} />
                   {whatsappValidating && <p className="text-sm text-blue-600 font-medium">{"Validando WhatsApp..."}</p>}
                   {whatsappValid === false && !whatsappValidating && <p className="text-sm text-red-500 font-medium">{"WhatsApp inválido! Verifique o número digitado."}</p>}
                   {whatsappValid === true && <p className="text-sm text-green-600 font-medium">{"WhatsApp válido"}</p>}
@@ -564,16 +564,16 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="cep">{"CEP"} <span className="text-red-500">*</span></Label>
-                  <Input id="cep" value={formData.cep} onChange={(e) => { handleInputChange("cep", e.target.value); setCepValid(null) }} onBlur={(e) => fetchAddressByCEP(e.target.value)} placeholder="00000-000" maxLength={9} required className={cepValid === false ? "border-red-500 border-2" : cepValid === true ? "border-green-500" : ""} />
+                  <Input id="cep" value={formData.cep} onChange={(e) => { handleInputChange("cep", e.target.value); setCepValid(null) }} onBlur={(e) => fetchAddressByCEP(e.target.value)} maxLength={9} required className={cepValid === false ? "border-red-500 border-2" : cepValid === true ? "border-green-500" : ""} />
                   {cepValid === false && <p className="text-sm text-red-500 font-medium">{"CEP inválido! Verifique o número digitado."}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="district">{"Bairro"} <span className="text-red-500">*</span></Label>
-                  <Input id="district" value={formData.district} onChange={(e) => handleInputChange("district", e.target.value)} placeholder="Seu bairro" required />
+                  <Input id="district" value={formData.district} onChange={(e) => handleInputChange("district", e.target.value)} required />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="city">{"Cidade"} <span className="text-red-500">*</span></Label>
-                  <Input id="city" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} placeholder="Sua cidade" required />
+                  <Input id="city" value={formData.city} onChange={(e) => handleInputChange("city", e.target.value)} required />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="state">{"Estado"} <span className="text-red-500">*</span></Label>
@@ -586,15 +586,15 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
                 </div>
                 <div className="flex flex-col gap-2 md:col-span-2 lg:col-span-3">
                   <Label htmlFor="street">{"Endereço"} <span className="text-red-500">*</span></Label>
-                  <Input id="street" value={formData.street} onChange={(e) => handleInputChange("street", e.target.value)} placeholder="Rua, Avenida, etc" required />
+                  <Input id="street" value={formData.street} onChange={(e) => handleInputChange("street", e.target.value)} required />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="number">{"Número"}</Label>
-                  <Input id="number" value={formData.number} onChange={(e) => handleInputChange("number", e.target.value)} placeholder="123" />
+                  <Input id="number" value={formData.number} onChange={(e) => handleInputChange("number", e.target.value)} />
                 </div>
                 <div className="flex flex-col gap-2 md:col-span-2">
                   <Label htmlFor="complement">{"Complemento"}</Label>
-                  <Input id="complement" value={formData.complement} onChange={(e) => handleInputChange("complement", e.target.value)} placeholder="Apto, Bloco, etc" />
+                  <Input id="complement" value={formData.complement} onChange={(e) => handleInputChange("complement", e.target.value)} />
                 </div>
               </div>
             </CardContent>
@@ -652,6 +652,21 @@ export default function RegistrationForm({ representante }: RegistrationFormProp
           )}
         </div>
       </form>
+
+      {/* Popup de processamento */}
+      {loading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white rounded-lg p-6 mx-auto max-w-md w-full shadow-2xl text-center">
+            <div className="flex justify-center mb-4">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+            </div>
+            <h2 className="text-lg font-bold text-red-600 mb-3">{"ATEN\u00C7\u00C3O!"}</h2>
+            <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+              {"N\u00E3o feche essa tela. Estamos processando o seu cadastro. Aguarde a finaliza\u00E7\u00E3o."}
+            </p>
+          </div>
+        </div>
+      )}
 
       <ErrorModal open={showErrorModal} onOpenChange={setShowErrorModal} message={errorMessage} />
     </>
